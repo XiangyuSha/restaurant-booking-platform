@@ -89,8 +89,6 @@ router.put("/update-booking/:id", async (req, res) => {
     }
 });
 
-  
-
 router.delete("/delete-booking/:id", async (req, res) => {
     const { id } = req.params;
     await executeQuery("DELETE FROM bookings WHERE _id=?", [id]);
