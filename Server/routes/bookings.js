@@ -1,80 +1,100 @@
 const express = require('express');
-const { executeQuery } = require('../models/db');
-const { verifyToken, authorizeRoles } = require('../middlewares/authJWT');
-
 const router = express.Router();
+const bcrypt = require('bcrypt');
+const { executeQuery } = require('../models/db'); 
 
-/** Get All Bookings (Waiter Only) */
-router.get("/bookings", verifyToken, authorizeRoles('waiter'), async (req, res) => {
+
+router.get("/my-bookings", async (req, res) => {
+    const { email } = req.query; // Get email from query parameters
+
+    if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+    }
+
     try {
-        const bookings = await executeQuery("SELECT * FROM bookings");
-        res.json(bookings);
+        const query = "SELECT _id, date, time, guests, comments FROM bookings WHERE email = ?";
+        const results = await executeQuery(query, [email]);
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: "No bookings found" });
+        }
+
+        res.json({ bookings: results });
     } catch (error) {
-        res.status(500).json({ error: "Database error", details: error.message });
+        console.error("Database error:", error);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
+  
 
-/** Create a New Booking (Customer Only) */
-router.post("/bookings", verifyToken, authorizeRoles('customer'), async (req, res) => {
-    const { tableId, date, time, remarks } = req.body;
-    const userId = req.user.id; // Get from JWT token
+router.get('/booked-slots', async (req, res) => {
+    const { date } = req.query;
 
     try {
-        await executeQuery(
-            "INSERT INTO bookings (userId, tableId, date, time, remarks, status) VALUES (?, ?, ?, ?, ?, 'Pending')",
-            [userId, tableId, date, time, remarks]
+        const results = await executeQuery(
+            `SELECT time FROM bookings WHERE date = ?`, [date]
         );
-        res.status(201).json({ message: "Booking request submitted" });
-    } catch (error) {
-        res.status(500).json({ error: "Database error", details: error.message });
+
+        const bookedTimes = results.map(row => row.time);
+
+        res.json({ bookedTimes });
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
-/** Update Booking Status (Waiter Only) */
-router.put("/bookings/:id", verifyToken, authorizeRoles('waiter'), async (req, res) => {
-    const { status } = req.body;
-    const bookingId = req.params.id;
+
+router.post('/book-table', async (req, res) => {
+    const { email, date, time, guests, comments } = req.body;
+
+    if (!email || !date || !time || !guests) {
+        return res.status(400).json({ message: "Missing required fields" });
+    }
 
     try {
         const result = await executeQuery(
-            "UPDATE bookings SET status = ? WHERE _id = ?",
-            [status, bookingId]
+            `INSERT INTO bookings (email, date, time, guests, comments) VALUES (?, ?, ?, ?, ?)`,
+            [email, date, time, guests, comments]
         );
 
-        if (!result || result.affectedRows === 0) {
-            return res.status(404).json({ message: "Booking not found" });
-        }
+        res.json({ 
+            message: "Booking confirmed", 
+            bookingId: result.insertId, 
+            date: date, 
+            time: time 
+        });
 
-        res.json({ message: "Booking status updated successfully" });
-    } catch (error) {
-        res.status(500).json({ error: "Database error", details: error.message });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
-/** Cancel a Booking (Customer or Waiter) */
-router.delete("/bookings/:id", verifyToken, async (req, res) => {
-    const bookingId = req.params.id;
+router.put("/update-booking/:id", async (req, res) => {
+    const { id } = req.params; // Get bookingId from URL
+    const { guests, comments } = req.body;
+
+    if (!id) {
+        return res.status(400).json({ error: "Missing booking ID" });
+    }
 
     try {
-        // Customers can only cancel their own bookings
-        let condition = "WHERE _id = ?";
-        let params = [bookingId];
+        const sql = `UPDATE bookings SET guests=?, comments=? WHERE _id=?`;
+        await executeQuery(sql, [guests, comments, id]);
 
-        if (req.user.role === 'customer') {
-            condition += " AND userId = ?";
-            params.push(req.user.id);
-        }
-
-        const result = await executeQuery(`DELETE FROM bookings ${condition}`, params);
-
-        if (!result || result.affectedRows === 0) {
-            return res.status(403).json({ message: "Unauthorized or booking not found" });
-        }
-
-        res.json({ message: "Booking cancelled successfully" });
+        res.json({ success: true, message: "Booking updated successfully" });
     } catch (error) {
-        res.status(500).json({ error: "Database error", details: error.message });
+        console.error("Error updating booking:", error);
+        res.status(500).json({ error: "Database error" });
     }
+});
+
+  
+
+router.delete("/delete-booking/:id", async (req, res) => {
+    const { id } = req.params;
+    await executeQuery("DELETE FROM bookings WHERE _id=?", [id]);
+    res.json({ success: true });
 });
 
 module.exports = router;

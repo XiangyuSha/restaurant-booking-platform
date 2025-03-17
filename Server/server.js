@@ -1,12 +1,14 @@
 const express = require('express')
 const cors = require('cors')
 const authRouter = require('./routes/auth')
+const bookingsRouter = require('./routes/bookings')
 
 const app = express()
 
 app.use(express.json()) // parse json
 app.use(cors({ origin: "*", methods: "GET,POST,PUT,DELETE" }))
-app.use('/auth', authRouter)
+app.use('/', authRouter)
+app.use('/', bookingsRouter)
 
 const { executeQuery } = require("./models/db");
 (async () => {
