@@ -39,7 +39,7 @@ const Sidebar = ({ active }) => {
         }} 
         onClick={() => navigate("/my-bookings")}
       >
-        Manage Bookings
+        My Bookings
       </Button>
     </Box>
   );

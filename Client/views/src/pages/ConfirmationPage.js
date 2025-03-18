@@ -9,7 +9,7 @@ const ConfirmationPage = () => {
 
   if (!bookingData) {
     return (
-      <Box sx={{ textAlign: "center", mt: 5 }}>
+      <Box sx={{ margin: "auto", mt: 4, p: 3, textAlign: "center" }}>
         <Typography variant="h5" color="error">
           No booking details found.
         </Typography>
@@ -21,23 +21,14 @@ const ConfirmationPage = () => {
   }
 
   return (
-    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+    <Box sx={{ display: "flex", mt: 2, p: 3, justifyContent: "center", alignItems: "center" }}>
       <Card sx={{ maxWidth: 500, p: 4, textAlign: "center" }}>
         <CardContent>
           <Typography variant="h4" color="primary">
-            Booking Confirmed! 🎉
+            Booking Confirmed!
           </Typography>
           <Typography variant="h6" sx={{ mt: 2 }}>
             Thank you for your reservation.
-          </Typography>
-          <Typography variant="body1" sx={{ mt: 2 }}>
-            <strong>Date:</strong> {bookingData.date}
-          </Typography>
-          <Typography variant="body1">
-            <strong>Time:</strong> {bookingData.time}
-          </Typography>
-          <Typography variant="body1" sx={{ mt: 1 }}>
-            <strong>Booking ID:</strong> {bookingData.bookingId}
           </Typography>
 
           {/* Navigate to dashboard */}

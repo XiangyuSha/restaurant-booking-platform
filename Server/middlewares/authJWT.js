@@ -10,7 +10,7 @@ function generateToken(user) {
     )
 }
 
-// verify token
+// Verify token
 function verifyToken(req, res, next) {
     const token = req.headers.authorization?.split(" ")[1]; // get token, which is after Bearer
     if (!token) res.status(401).json({ message: 'Access denied. No token provided. '})

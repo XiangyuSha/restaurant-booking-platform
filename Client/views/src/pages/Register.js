@@ -15,7 +15,6 @@ const Register = () => {
       await axios.post(`${API_BASE_URL}/register`, { email, password });
 
       setSnackbar({ open: true, message: "Registration successful!", severity: "success" });
-
       setTimeout(() => {
         navigate("/login"); // Redirect to login after registration
       }, 1500);
@@ -38,7 +37,12 @@ const Register = () => {
         </Typography>
 
         {/* Snackbar Notification */}
-        <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={3000}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
           <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
         </Snackbar>
       </CardContent>
