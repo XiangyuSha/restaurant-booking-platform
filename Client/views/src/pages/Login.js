@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TextField, Button, Snackbar, Alert, Card, CardContent, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from "axios";
 import API_BASE_URL from "../config";
 
@@ -9,6 +9,14 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // Check if redirected from PrivateRoute
+    useEffect(() => {
+      if (location.state?.message) {
+          setSnackbar({ open: true, message: location.state.message, severity: "warning" });
+      }
+    }, [location.state]);
   
     const handleLogin = async () => {
       try {
@@ -20,7 +28,7 @@ const Login = () => {
         setSnackbar({ open: true, message: "Login succeeded!", severity: "success" });
   
         setTimeout(() => {
-          navigate("/reserve"); // Redirect to booking page after login
+          navigate("/"); // Redirect to booking page after login
         }, 1500);
         
       } catch (error) {

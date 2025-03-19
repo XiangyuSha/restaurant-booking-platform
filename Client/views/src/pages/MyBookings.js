@@ -4,9 +4,8 @@ import {
     TableContainer, TableHead, TableRow, Dialog, DialogActions, 
     DialogContent, DialogTitle, TextField, Snackbar, Alert 
 } from "@mui/material";
-import axios from "axios";
-import API_BASE_URL from "../config";
 import Sidebar from './Sidebar';
+import api from "../api"; // Import the axios instance
 
 const MyBookings = () => {
     const [bookings, setBookings] = useState([]);
@@ -20,10 +19,12 @@ const MyBookings = () => {
         fetchBookings();
     }, []);
 
+    // fetch all booking info
     const fetchBookings = async () => {
         try {
             const email = localStorage.getItem("userEmail");
-            const response = await axios.get(`${API_BASE_URL}/my-bookings`, { params: { email } });
+            const response = await api.get("/my-bookings", { params: { email } });
+
             setBookings(response.data.bookings || []);
         } catch (error) {
             console.error("Error fetching bookings:", error);
@@ -37,27 +38,30 @@ const MyBookings = () => {
         setOpenEdit(true);
     };
 
+    // Update booking info
     const handleUpdate = async () => {
         if (!selectedBooking) return;
         
         try {
-            await axios.put(`${API_BASE_URL}/update-booking/${selectedBooking._id}`, {
+            await api.put(`/update-booking/${selectedBooking._id}`, {
                 guests: updatedGuests,
                 comments: updatedComments,
             });
 
-            fetchBookings();
+            fetchBookings(); // Refresh booking list
             setOpenEdit(false);
             setSnackbar({ open: true, message: "Booking updated successfully!", severity: "success" });
         } catch (error) {
             console.error("Error updating booking:", error);
             setSnackbar({ open: true, message: "Error updating booking!", severity: "error" });
+
         }
     };
 
+    // Delete a booking
     const handleCancel = async (id) => {
         try {
-            await axios.delete(`${API_BASE_URL}/delete-booking/${id}`);
+            await api.delete(`/delete-booking/${id}`);
             fetchBookings();
             setSnackbar({ open: true, message: "Booking canceled successfully!", severity: "success" });
         } catch (error) {

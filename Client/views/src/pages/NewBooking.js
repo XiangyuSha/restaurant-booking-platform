@@ -3,9 +3,8 @@ import { Box, Button, Typography, Card, TextField } from "@mui/material";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import API_BASE_URL from "../config";
 import Sidebar from './Sidebar';
+import api from "../api"; // Import the axios instance
 
 const BookingPage = () => {
   const navigate = useNavigate();
@@ -41,12 +40,13 @@ const BookingPage = () => {
     const fetchBookedTimes = async () => {
       try {
         const formattedDate = date.toISOString().split("T")[0]; // Convert to YYYY-MM-DD
-        const response = await axios.get(`${API_BASE_URL}/booked-slots`, {
-          params: { date: formattedDate },
+        const response = await api.get("/booked-slots", {
+          params: { date: formattedDate }
         });
 
         const formattedBookedTimes = response.data.bookedTimes.map(time => convertTo24HourFormat(time));
-        setBookedTimes(formattedBookedTimes);
+        setBookedTimes(formattedBookedTimes); // updates the state whenever new booked times are fetched.
+
         console.log("Booked Times:", formattedBookedTimes); // Debugging
       } catch (error) {
         console.error("Error fetching booked times:", error);
@@ -54,7 +54,7 @@ const BookingPage = () => {
     };
 
     fetchBookedTimes();
-  }, [date]);
+  }, [date]); // fetches booked time slots whenever date changes and run effect again
 
   const handleNext = () => {
     if (!selectedTime) {
@@ -78,6 +78,7 @@ const BookingPage = () => {
     return `${hours.padStart(2, "0")}:${minutes.padStart(2, "0")}:00`; // Ensure HH:MM:SS format
   };
 
+  // Add a new booking
   const handleSubmit = async () => {
     if (!selectedTime || !email || !guests || !date) {
       alert("Please fill in all fields before submitting.");
@@ -88,14 +89,15 @@ const BookingPage = () => {
       const formattedDate = date.toISOString().split("T")[0];
       const formattedTime = convertTo24HourFormat(selectedTime);
 
-      const response = await axios.post(`${API_BASE_URL}/book-table`, {
-        email,
+      const response = await api.post("/book-table", {
+        email, // omit the key if key and value name are same
         date: formattedDate,
         time: formattedTime,
         guests,
         comments,
       });
 
+      // Also passes the API response to the next page
       navigate("/confirmation", { state: response.data });
 
     } catch (error) {
