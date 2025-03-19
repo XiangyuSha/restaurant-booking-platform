@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const { executeQuery } = require('../models/db'); 
+const { verifyToken } = require("../middlewares/authJWT");
 
 // Get bookings
-router.get("/my-bookings", async (req, res) => {
+router.get("/my-bookings", verifyToken, async (req, res) => {
     const { email } = req.query; // Get email from query parameters
 
     if (!email) {
@@ -27,7 +28,7 @@ router.get("/my-bookings", async (req, res) => {
 });
   
 // Get booked slots
-router.get('/booked-slots', async (req, res) => {
+router.get('/booked-slots', verifyToken, async (req, res) => {
     const { date } = req.query;
 
     try {
@@ -45,7 +46,7 @@ router.get('/booked-slots', async (req, res) => {
 });
 
 // Add new booking
-router.post('/book-table', async (req, res) => {
+router.post('/book-table', verifyToken, async (req, res) => {
     const { email, date, time, guests, comments } = req.body;
 
     if (!email || !date || !time || !guests) {
@@ -71,7 +72,7 @@ router.post('/book-table', async (req, res) => {
 });
 
 // Update booking info
-router.put("/update-booking/:id", async (req, res) => {
+router.put("/update-booking/:id", verifyToken, async (req, res) => {
     const { id } = req.params; // Get bookingId from URL
     const { guests, comments } = req.body;
 
@@ -91,7 +92,7 @@ router.put("/update-booking/:id", async (req, res) => {
 });
 
 // Delete booking
-router.delete("/delete-booking/:id", async (req, res) => {
+router.delete("/delete-booking/:id", verifyToken, async (req, res) => {
     const { id } = req.params;
     await executeQuery("DELETE FROM bookings WHERE _id=?", [id]);
     res.json({ success: true });
