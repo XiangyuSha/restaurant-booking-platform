@@ -23,7 +23,7 @@ const MyBookings = () => {
     const fetchBookings = async () => {
         try {
             const email = localStorage.getItem("userEmail");
-            const response = await api.get("/my-bookings", { params: { email } });
+            const response = await api.get("/bookings", { params: { email } });
 
             setBookings(response.data.bookings || []);
         } catch (error) {
@@ -43,7 +43,7 @@ const MyBookings = () => {
         if (!selectedBooking) return;
         
         try {
-            await api.put(`/update-booking/${selectedBooking._id}`, {
+            await api.put(`/bookings/${selectedBooking._id}`, {
                 guests: updatedGuests,
                 comments: updatedComments,
             });
@@ -61,7 +61,7 @@ const MyBookings = () => {
     // Delete a booking
     const handleCancel = async (id) => {
         try {
-            await api.delete(`/delete-booking/${id}`);
+            await api.delete(`/bookings/${id}`);
             fetchBookings();
             setSnackbar({ open: true, message: "Booking canceled successfully!", severity: "success" });
         } catch (error) {

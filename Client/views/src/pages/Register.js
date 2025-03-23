@@ -12,7 +12,7 @@ const Register = () => {
 
   const handleRegister = async () => {
     try {
-      await axios.post(`${API_BASE_URL}/register`, { email, password });
+      await axios.post(`${API_BASE_URL}/auth/register`, { email, password });
 
       setSnackbar({ open: true, message: "Registration successful!", severity: "success" });
       setTimeout(() => {

@@ -7,7 +7,7 @@ const { generateToken } = require('../middlewares/authJWT');
 const router = express.Router();
 
 // Register (No Roles)
-router.post('/register', async (req, res) => {
+router.post('/auth/register', async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -37,7 +37,7 @@ router.post('/register', async (req, res) => {
 });
 
 // Login (No Roles)
-router.post('/login', async (req, res) => {
+router.post('/auth/login', async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {

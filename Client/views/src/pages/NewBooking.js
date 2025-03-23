@@ -40,7 +40,7 @@ const BookingPage = () => {
     const fetchBookedTimes = async () => {
       try {
         const formattedDate = date.toISOString().split("T")[0]; // Convert to YYYY-MM-DD
-        const response = await api.get("/booked-slots", {
+        const response = await api.get("/slots/available", {
           params: { date: formattedDate }
         });
 
@@ -89,7 +89,7 @@ const BookingPage = () => {
       const formattedDate = date.toISOString().split("T")[0];
       const formattedTime = convertTo24HourFormat(selectedTime);
 
-      const response = await api.post("/book-table", {
+      const response = await api.post("/bookings", {
         email, // omit the key if key and value name are same
         date: formattedDate,
         time: formattedTime,

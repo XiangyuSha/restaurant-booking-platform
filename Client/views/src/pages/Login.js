@@ -20,7 +20,7 @@ const Login = () => {
   
     const handleLogin = async () => {
       try {
-        const response = await axios.post(`${API_BASE_URL}/login`, { email, password });
+        const response = await axios.post(`${API_BASE_URL}/auth/login`, { email, password });
   
         localStorage.setItem("token", response.data.token); // Store token
         localStorage.setItem("userEmail", email); // Store the email
